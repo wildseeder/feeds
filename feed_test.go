@@ -107,13 +107,18 @@ var rssOutput = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:
 </rss>`
 
 var jsonOutput = `{
-  "version": "https://jsonfeed.org/version/1",
+  "version": "https://jsonfeed.org/version/1.1",
   "title": "jmoiron.net blog",
   "home_page_url": "http://jmoiron.net/blog",
   "description": "discussion about tech, footie, photos",
   "author": {
     "name": "Jason Moiron"
   },
+  "authors": [
+    {
+      "name": "Jason Moiron"
+    }
+  ],
   "items": [
     {
       "id": "",
@@ -124,7 +129,12 @@ var jsonOutput = `{
       "date_published": "2013-01-16T21:52:35-05:00",
       "author": {
         "name": "Jason Moiron"
-      }
+      },
+      "authors": [
+        {
+          "name": "Jason Moiron"
+        }
+      ]
     },
     {
       "id": "",
@@ -146,7 +156,14 @@ var jsonOutput = `{
       "url": "http://example.com/RickRoll.mp3",
       "title": "Never Gonna Give You Up Mp3",
       "summary": "Never gonna give you up - Never gonna let you down.",
-      "date_published": "2013-01-16T21:52:35-05:00"
+      "date_published": "2013-01-16T21:52:35-05:00",
+      "attachments": [
+        {
+          "url": "http://example.com/RickRoll.mp3",
+          "mime_type": "audio/mpeg",
+          "size_in_bytes": 123456
+        }
+      ]
     },
     {
       "id": "",
@@ -347,13 +364,18 @@ var rssOutputSorted = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" 
 </rss>`
 
 var jsonOutputSorted = `{
-  "version": "https://jsonfeed.org/version/1",
+  "version": "https://jsonfeed.org/version/1.1",
   "title": "jmoiron.net blog",
   "home_page_url": "http://jmoiron.net/blog",
   "description": "discussion about tech, footie, photos",
   "author": {
     "name": "Jason Moiron"
   },
+  "authors": [
+    {
+      "name": "Jason Moiron"
+    }
+  ],
   "items": [
     {
       "id": "",
@@ -483,7 +505,7 @@ func TestFeedSorted(t *testing.T) {
 }
 
 var jsonOutputHub = `{
-  "version": "https://jsonfeed.org/version/1",
+  "version": "https://jsonfeed.org/version/1.1",
   "title": "feed title",
   "hubs": [
     {
@@ -495,7 +517,7 @@ var jsonOutputHub = `{
 
 func TestJSONHub(t *testing.T) {
 	feed := &JSONFeed{
-		Version: "https://jsonfeed.org/version/1",
+		Version: "https://jsonfeed.org/version/1.1",
 		Title:   "feed title",
 		Hubs: []*JSONHub{
 			{

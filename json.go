@@ -2,11 +2,12 @@ package feeds
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 	"time"
 )
 
-const jsonFeedVersion = "https://jsonfeed.org/version/1"
+const jsonFeedVersion = "https://jsonfeed.org/version/1.1"
 
 // JSONAuthor represents the author of the feed or of an individual item
 // in the feed
@@ -22,7 +23,7 @@ type JSONAttachment struct {
 	Url      string        `json:"url,omitempty"`
 	MIMEType string        `json:"mime_type,omitempty"`
 	Title    string        `json:"title,omitempty"`
-	Size     int32         `json:"size,omitempty"`
+	Size     int           `json:"size_in_bytes,omitempty"`
 	Duration time.Duration `json:"duration_in_seconds,omitempty"`
 }
 
@@ -66,20 +67,22 @@ func (a *JSONAttachment) UnmarshalJSON(data []byte) error {
 
 // JSONItem represents a single entry/post for the feed.
 type JSONItem struct {
-	Id            string           `json:"id"`
-	Url           string           `json:"url,omitempty"`
-	ExternalUrl   string           `json:"external_url,omitempty"`
-	Title         string           `json:"title,omitempty"`
-	ContentHTML   string           `json:"content_html,omitempty"`
-	ContentText   string           `json:"content_text,omitempty"`
-	Summary       string           `json:"summary,omitempty"`
-	Image         string           `json:"image,omitempty"`
-	BannerImage   string           `json:"banner_,omitempty"`
-	PublishedDate *time.Time       `json:"date_published,omitempty"`
-	ModifiedDate  *time.Time       `json:"date_modified,omitempty"`
-	Author        *JSONAuthor      `json:"author,omitempty"`
-	Tags          []string         `json:"tags,omitempty"`
-	Attachments   []JSONAttachment `json:"attachments,omitempty"`
+	Id            string            `json:"id"`
+	Url           string            `json:"url,omitempty"`
+	ExternalUrl   string            `json:"external_url,omitempty"`
+	Title         string            `json:"title,omitempty"`
+	ContentHTML   string            `json:"content_html,omitempty"`
+	ContentText   string            `json:"content_text,omitempty"`
+	Summary       string            `json:"summary,omitempty"`
+	Image         string            `json:"image,omitempty"`
+	BannerImage   string            `json:"banner_,omitempty"`
+	PublishedDate *time.Time        `json:"date_published,omitempty"`
+	ModifiedDate  *time.Time        `json:"date_modified,omitempty"`
+	Author        *JSONAuthor       `json:"author,omitempty"` // Deprecated, keep for compatibility
+	Authors       []*JSONAuthor     `json:"authors,omitempty"`
+	Tags          []string          `json:"tags,omitempty"`
+	Language      string            `json:"language,omitempty"`
+	Attachments   []*JSONAttachment `json:"attachments,omitempty"`
 }
 
 // JSONHub describes an endpoint that can be used to subscribe to real-time
@@ -92,19 +95,21 @@ type JSONHub struct {
 // JSONFeed represents a syndication feed in the JSON Feed Version 1 format.
 // Matching the specification found here: https://jsonfeed.org/version/1.
 type JSONFeed struct {
-	Version     string      `json:"version"`
-	Title       string      `json:"title"`
-	HomePageUrl string      `json:"home_page_url,omitempty"`
-	FeedUrl     string      `json:"feed_url,omitempty"`
-	Description string      `json:"description,omitempty"`
-	UserComment string      `json:"user_comment,omitempty"`
-	NextUrl     string      `json:"next_url,omitempty"`
-	Icon        string      `json:"icon,omitempty"`
-	Favicon     string      `json:"favicon,omitempty"`
-	Author      *JSONAuthor `json:"author,omitempty"`
-	Expired     *bool       `json:"expired,omitempty"`
-	Hubs        []*JSONHub  `json:"hubs,omitempty"`
-	Items       []*JSONItem `json:"items,omitempty"`
+	Version     string        `json:"version"`
+	Title       string        `json:"title"`
+	HomePageUrl string        `json:"home_page_url,omitempty"`
+	FeedUrl     string        `json:"feed_url,omitempty"`
+	Description string        `json:"description,omitempty"`
+	UserComment string        `json:"user_comment,omitempty"`
+	NextUrl     string        `json:"next_url,omitempty"`
+	Icon        string        `json:"icon,omitempty"`
+	Favicon     string        `json:"favicon,omitempty"`
+	Author      *JSONAuthor   `json:"author,omitempty"` // Deprecated, keep for compatibility
+	Authors     []*JSONAuthor `json:"authors,omitempty"`
+	Language    string        `json:"language,omitempty"`
+	Expired     bool          `json:"expired,omitempty"`
+	Hubs        []*JSONHub    `json:"hubs,omitempty"`
+	Items       []*JSONItem   `json:"items,omitempty"`
 }
 
 // JSON is used to convert a generic Feed to a JSONFeed.
@@ -139,6 +144,12 @@ func (f *JSON) JSONFeed() *JSONFeed {
 		feed.HomePageUrl = f.Link.Href
 	}
 	if f.Author != nil {
+		feed.Authors = []*JSONAuthor{
+			{
+				Name: f.Author.Name,
+			},
+		}
+		// Deprecated, keep for compatibility
 		feed.Author = &JSONAuthor{
 			Name: f.Author.Name,
 		}
@@ -165,6 +176,12 @@ func newJSONItem(i *Item) *JSONItem {
 		item.ExternalUrl = i.Source.Href
 	}
 	if i.Author != nil {
+		item.Authors = []*JSONAuthor{
+			{
+				Name: i.Author.Name,
+			},
+		}
+		// Deprecated, keep for compatibility
 		item.Author = &JSONAuthor{
 			Name: i.Author.Name,
 		}
@@ -175,8 +192,13 @@ func newJSONItem(i *Item) *JSONItem {
 	if !i.Updated.IsZero() {
 		item.ModifiedDate = &i.Updated
 	}
-	if i.Enclosure != nil && strings.HasPrefix(i.Enclosure.Type, "image/") {
-		item.Image = i.Enclosure.Url
+	if i.Enclosure != nil {
+		if strings.HasPrefix(i.Enclosure.Type, "image/") {
+			item.Image = i.Enclosure.Url
+		} else {
+			el, _ := strconv.Atoi(i.Enclosure.Length)
+			item.Attachments = append(item.Attachments, &JSONAttachment{Url: i.Enclosure.Url, MIMEType: i.Enclosure.Type, Size: el})
+		}
 	}
 
 	return item

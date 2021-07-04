@@ -374,7 +374,7 @@ func TestRssUnmarshal(t *testing.T) {
 		panic("AHH file bad")
 	}
 	bytes, _ := ioutil.ReadAll(xmlFile)
-	xml.Unmarshal(bytes, &xmlFeed)
+	_ = xml.Unmarshal(bytes, &xmlFeed)
 
 	if !reflect.DeepEqual(testRssFeedXML, xmlFeed) {
 		diffs := pretty.Diff(testRssFeedXML, xmlFeed)
@@ -391,7 +391,7 @@ func TestAtomUnmarshal(t *testing.T) {
 		panic("AHH file bad")
 	}
 	bytes, _ := ioutil.ReadAll(xmlFile)
-	xml.Unmarshal(bytes, &xmlFeed)
+	_ = xml.Unmarshal(bytes, &xmlFeed)
 
 	if !reflect.DeepEqual(testAtomFeedXML, xmlFeed) {
 		diffs := pretty.Diff(testAtomFeedXML, xmlFeed)
