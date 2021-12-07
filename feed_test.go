@@ -8,7 +8,7 @@ import (
 
 var atomOutput = `<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">
   <title>jmoiron.net blog</title>
-  <id>http://jmoiron.net/blog</id>
+  <id>id</id>
   <updated>2013-01-16T21:52:35-05:00</updated>
   <rights>This work is copyright © Benjamin Button</rights>
   <subtitle>discussion about tech, footie, photos</subtitle>
@@ -184,6 +184,7 @@ func TestFeed(t *testing.T) {
 	now = now.In(tz)
 
 	feed := &Feed{
+    Id:          "id",
 		Title:       "jmoiron.net blog",
 		Link:        &Link{Href: "http://jmoiron.net/blog"},
 		Description: "discussion about tech, footie, photos",
@@ -276,7 +277,7 @@ func TestFeed(t *testing.T) {
 
 var atomOutputSorted = `<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">
   <title>jmoiron.net blog</title>
-  <id>http://jmoiron.net/blog</id>
+  <id>id</id>
   <updated>2013-01-16T21:52:35-05:00</updated>
   <rights>This work is copyright © Benjamin Button</rights>
   <subtitle>discussion about tech, footie, photos</subtitle>
@@ -419,6 +420,7 @@ func TestFeedSorted(t *testing.T) {
 	now = now.In(tz)
 
 	feed := &Feed{
+    Id:          "id",
 		Title:       "jmoiron.net blog",
 		Link:        &Link{Href: "http://jmoiron.net/blog"},
 		Description: "discussion about tech, footie, photos",

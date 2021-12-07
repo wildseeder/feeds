@@ -1,4 +1,4 @@
-module github.com/jlelse/feeds
+module github.com/wildseeder/feeds
 
 go 1.16
 
